@@ -1,6 +1,8 @@
-const { Client } = require('discord.js-selfbot-v13');
+const { Client, Intents } = require('discord.js');
 const { joinVoiceChannel, getVoiceConnection } = require('@discordjs/voice');
-const client = new Client();
+const client = new Client({
+  intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_VOICE_STATES]
+});
 
 let connection;
 
@@ -23,7 +25,7 @@ client.on('ready', async () => {
 });
 
 // أمر لإيقاف التثبيت
-client.on('message', async (message) => {
+client.on('messageCreate', async (message) => {
   if (message.content === '!stop') {
     if (connection) {
       connection.destroy();
