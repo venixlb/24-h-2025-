@@ -1,17 +1,19 @@
 {
-  "name": "24-voice-account",
+  "name": "discord-selfbot-voice",
   "version": "1.0.0",
-  "description": "Selfbot voice joiner",
+  "description": "A Discord selfbot to join and leave voice channels",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
   },
-  "engines": {
-    "node": ">=20.18.0"
-  },
   "dependencies": {
-    "discord.js-selfbot-v13": "^3.6.1",
-    "@discordjs/voice": "^0.17.0",
-    "dotenv": "^16.3.1"
-  }
+    "discord.js-selfbot-v13": "^13.1.0",
+    "dotenv": "^10.0.0",
+    "@discordjs/voice": "^0.13.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "author": "",
+  "license": "ISC"
 }
