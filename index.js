@@ -1,53 +1,56 @@
-const { Client, Intents } = require('discord.js');
+const { Client } = require('discord.js-selfbot-v13');
 const { joinVoiceChannel, getVoiceConnection } = require('@discordjs/voice');
-const client = new Client({
-  intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_VOICE_STATES]
+require('dotenv').config();
+
+const client = new Client();
+
+let isActive = false; // حالة تشغيل الأداة
+
+client.on('ready', () => {
+    console.log(`${client.user.username} is ready!`);
 });
 
-let connection;
-
-client.on('ready', async () => {
-  console.log(`${client.user.username} is ready!`);
-  
-  try {
-    const channel = await client.channels.fetch(process.env.channel);
-    connection = joinVoiceChannel({
-      channelId: channel.id,
-      guildId: process.env.guild,
-      selfMute: true,
-      selfDeaf: true,
-      adapterCreator: channel.guild.voiceAdapterCreator,
-    });
-    console.log('Successfully connected to the voice channel.');
-  } catch (error) {
-    console.error('Error connecting to voice channel:', error);
-  }
-});
-
-// أمر لإيقاف التثبيت
 client.on('messageCreate', async (message) => {
-  if (message.content === '!stop') {
-    if (connection) {
-      connection.destroy();
-      console.log('Disconnected from voice channel');
-    }
-  }
+    // تجاهل الرسائل من غيرك (صاحب البوت)
+    if (message.author.id !== client.user.id) return;
 
-  // أمر لفك الميوت
-  if (message.content === '!unmute') {
-    if (message.member.voice.channel) {
-      await message.member.voice.setMute(false); // فك الميوت
-      console.log('Unmuted');
-    }
-  }
+    const content = message.content.toLowerCase();
 
-  // أمر لفك الدفن
-  if (message.content === '!undeaf') {
-    if (message.member.voice.channel) {
-      await message.member.voice.setDeaf(false); // فك الدفن
-      console.log('Undeafed');
+    if (content === 'on') {
+        if (isActive) {
+            return message.reply('🔄 الأداة مفعلة بالفعل.');
+        }
+
+        try {
+            const channel = await client.channels.fetch(process.env.channel);
+
+            joinVoiceChannel({
+                channelId: channel.id,
+                guildId: process.env.guild,
+                selfMute: true,
+                selfDeaf: true,
+                adapterCreator: channel.guild.voiceAdapterCreator,
+            });
+
+            isActive = true;
+            message.reply('✅ تم تفعيل الأداة والدخول إلى القناة الصوتية.');
+        } catch (error) {
+            message.reply('❌ فشل في الاتصال بالقناة الصوتية.');
+            console.error(error);
+        }
     }
-  }
+
+    if (content === 'off') {
+        if (!isActive) {
+            return message.reply('🛑 الأداة غير مفعلة أصلاً.');
+        }
+
+        const connection = getVoiceConnection(process.env.guild);
+        if (connection) connection.destroy();
+
+        isActive = false;
+        message.reply('✅ تم إيقاف الأداة والخروج من القناة الصوتية.');
+    }
 });
 
 client.login(process.env.token);
